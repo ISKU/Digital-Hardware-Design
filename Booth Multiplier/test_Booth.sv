@@ -3,7 +3,7 @@ module test_Booth;
 	wire [31:0] result; // output x*y (32bit)
 	reg [31:0] check; // Booth Multiplier로 구한 값이 맞는지 확인
 	
-	integer i, j, k;
+	integer i, j;
 	integer num_correct; // 값이 맞을 경우 증가
 	integer num_wrong; // 값이 틀릴 경우 증가
 

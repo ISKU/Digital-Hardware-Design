@@ -126,7 +126,7 @@ module BoothMultiplier(z, x, y);
 		cout,
 		z,
 		{1'b0, sum7[18:2], sum6[1:0], sum5[1:0], sum4[1:0], sum3[1:0], sum2[1:0], sum1[1:0], partial1[1:0]},
-		{carry7[18:0], carry5[1:0], carry4[1:0], carry3[1:0], carry2[1:0], carry1[1:0], sign2, 1'b0, sign1},
+		{carry7[18:2], carry6[1:0], carry5[1:0], carry4[1:0], carry3[1:0], carry2[1:0], carry1[1:0], sign2, 1'b0, sign1},
 		1'b0
 	);
 endmodule 
