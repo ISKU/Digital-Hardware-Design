@@ -12,10 +12,10 @@ module test_Booth;
 	initial begin
 		num_correct = 0; num_wrong = 0;
 		
-		for (i = 0; i < 65536; i = i + 1000) begin
-			x = i; // X값은 0에서 ~ 65535까지 1000씩 증가한다.
-			for (j = 0; j < 65536; j = j + 1000) begin
-				y = j; // Y값 0에서 ~ 65535까지 1000씩 증가한다.
+		for (i = 0; i < 32768; i = i + 1000) begin
+			x = i; // X값은 0에서 ~ 32768까지 1000씩 증가한다.
+			for (j = 0; j < 32768; j = j + 1000) begin
+				y = j; // Y값 0에서 ~ 32768까지 1000씩 증가한다.
 
 				check = x * y; 
 				// Booth Multiplier로 계산한 값이 실제 계산 값과 일치하는지 확인 하기 위해 계산

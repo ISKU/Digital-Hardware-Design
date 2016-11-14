@@ -21,15 +21,14 @@ module BoothMultiplier(z, x, y);
 	wire sign7;
 	wire sign8;
 	
-	wire [18:0] partial1;
-	wire [17:0] partial2;
-	wire [17:0] partial3;
-	wire [17:0] partial4;
-	wire [17:0] partial5;
-	wire [17:0] partial6;
-	wire [17:0] partial7;
+	wire [16:0] partial1;
+	wire [16:0] partial2;
+	wire [16:0] partial3;
+	wire [16:0] partial4;
+	wire [16:0] partial5;
+	wire [16:0] partial6;
+	wire [16:0] partial7;
 	wire [16:0] partial8;
-	
 	
 	wire [19:0] sum1;
 	wire [19:0] sum2;
@@ -37,7 +36,7 @@ module BoothMultiplier(z, x, y);
 	wire [19:0] sum4;
 	wire [19:0] sum5;
 	wire [19:0] sum6;
-	wire [18:0] sum7;
+	wire [19:0] sum7;
 	
 	wire [19:0]carry1;
 	wire [19:0]carry2;
@@ -45,7 +44,7 @@ module BoothMultiplier(z, x, y);
 	wire [19:0]carry4;
 	wire [19:0]carry5;
 	wire [19:0]carry6;
-	wire [18:0]carry7;	
+	wire [19:0]carry7;	
 	wire cout;
 	
 	BoothEncoder booth1(sel1, {y[1:0], 1'b0});
@@ -114,19 +113,36 @@ module BoothMultiplier(z, x, y);
 		{1'b0, carry5[19:2], sign7},
 		{1'b1, ~partial8[16], partial8[15:0], 2'b0}
 	);
-	
-	CSA19_HA csa6(
+
+	CSA20 csa6(
 		carry7,
 		sum7,
-		{1'b0, sum6[19:2]},
-		{carry6[19:2], sign8}
+		{2'b0, sum6[19:2]},
+		{1'b0, carry6[19:2], sign8},
+		{20'b0}
 	);
-
+	
+/*	
+	CSA19 csa5(
+		carry6,
+		sum6,
+		{1'b0, sum5[19:2]},
+		{carry5[19:2], sign7},
+		{~partial8[16], partial8[15:0], 2'b0}
+	);
+	
+	CSA17_HA csa6(
+		carry7,
+		sum7,
+		{sum6[18:2]},
+		{carry6[17:2], sign8}
+	);
+*/
 	RCA32 cpa0(
 		cout,
 		z,
-		{1'b0, sum7[18:2], sum6[1:0], sum5[1:0], sum4[1:0], sum3[1:0], sum2[1:0], sum1[1:0], partial1[1:0]},
-		{carry7[18:2], carry6[1:0], carry5[1:0], carry4[1:0], carry3[1:0], carry2[1:0], carry1[1:0], sign2, 1'b0, sign1},
+		{sum7[17:0], sum6[1:0], sum5[1:0], sum4[1:0], sum3[1:0], sum2[1:0], sum1[1:0], partial1[1:0]},
+		{carry7[16:0], carry6[1:0], carry5[1:0], carry4[1:0], carry3[1:0], carry2[1:0], carry1[1:0], sign2, 1'b0, sign1},
 		1'b0
 	);
 endmodule 

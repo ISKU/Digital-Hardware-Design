@@ -1,12 +1,11 @@
-// 19bit Carry Save Adder (using Half Adder)
-module CSA19_HA (cout, sum, a, b);
-	input [18:0] a; // 19bit 입력 a, b
-	input [18:0] b;
-	output [18:0] cout, sum; // 19bit carry, sum
+// 18bit Carry Save Adder (using Half Adder)
+module CSA18_HA (cout, sum, a, b);
+	input [17:0] a; // 18bit 입력 a, b
+	input [17:0] b;
+	output [17:0] cout, sum; // 18bit carry, sum
 	
-	HA hadd18(cout[18], sum[18], a[18], b[18]);
 	HA hadd17(cout[17], sum[17], a[17], b[17]);
-	HA hadd16(cout[16], sum[16], a[16], b[16]);
+	HA hadd16(cout[16], sum[16], a[16], b[16]);	
 	HA hadd15(cout[15], sum[15], a[15], b[15]);
 	HA hadd14(cout[14], sum[14], a[14], b[14]);
 	HA hadd13(cout[13], sum[13], a[13], b[13]);
