@@ -25,6 +25,7 @@ module ALU (result, cc, valA, valB, aluop, sub);
 	wire [15:0] add_out, mul_out, svalB; // add, sub, multiply 
 	
 	wire [15:0] result;
+	wire [3:0] cc;
 	wire shift_co, add_co, mul_co; // shift, add, multiply carry overflow
 	wire shift_LR, rotate_LR; // shift, rotate 왼쪽 오른쪽 선택
 	wire N, Z, C, V; // N, Z, C, V
