@@ -38,17 +38,17 @@ module ALU (result, cc, valA, valB, aluop, sub);
 	
 	// Left Shifter Or Logical Shift Right
 	assign shift_LR = 
-		(shift_LR == `OP_SHL) ? 1'b1 : // shift left
-		(shift_LR == `OP_SHLR) ? 1'b0 : 1'bx; // logical shift right
+		(aluop == `OP_SHL) ? 1'b1 : // shift left
+		(aluop == `OP_SHLR) ? 1'b0 : 1'bx; // logical shift right
 	Shifter16_LR myShifter(shift_out, valB, shift_LR, valA); // valA를 valB 만큼 Shift
 	
 	// Arithmetic Shift Right 
-	Shifter16_LR myArithmeticShift(arithmetic_out, valB, valA); // valA를 valB만큼 Arithmetic Shift
+	Shifter16_AR myArithmeticShift(arithmetic_out, valB, valA); // valA를 valB만큼 Arithmetic Shift
 	
 	// Rotator
 	assign rotate_LR = 
-		(rotate_LR == `OP_RL) ? 1'b1 : // rotate left
-		(rotate_LR == `OP_RR) ? 1'b0 : 1'bx; // rotate right
+		(aluop == `OP_RL) ? 1'b1 : // rotate left
+		(aluop == `OP_RR) ? 1'b0 : 1'bx; // rotate right
 	Rotator16_LR myRotator(rotate_out, valB, rotate_LR, valA); // valA를 valB만큼 Rotate
 	
 	// 덧셈 or 뺄셈
@@ -73,18 +73,18 @@ module ALU (result, cc, valA, valB, aluop, sub);
 		(aluop == `OP_NOT) ? not16b :
 		(aluop == `OP_MUL) ? mul_out : 16'bx;
 	
-	assign N = result[15]; // 최상위 비트로부터 부호 확인
+	assign N = result[15]; // 최상위 비트로부터 Sign 확인
 	assign Z = ~|result; // Zero 확인
-	assign C = 
+	assign C = // Carry 확인
 		(aluop == `OP_ADD) ? add_co : // Add
 		(aluop == `OP_MUL) ? mul_co : // Multiply
 		1'b0;
-	assign V = 
+	assign V = // Overflow 확인
 		(aluop == `OP_SHL) ? 1'b1 : // shift left
 		(aluop == `OP_ADD) ? // Add
 			(~valA[15] & ~svalB[15] & add_out[15]) | /* (-) + (-) = (+) */ 
 			(valA[15] & svalB[15] & ~add_out[15]) : /* (+) + (+) = (-) */
-		(aluop == `OP_MUL) ? mul_co : // Multiply
+		(aluop == `OP_MUL) ? (valA[15] & valB[15]) : // Multiply
 		1'b0;
 	
 	assign cc = {N, Z, C, V};

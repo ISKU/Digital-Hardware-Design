@@ -48,7 +48,7 @@ module BoothMultiplier(cout, z16, x, y);
 	wire [19:0]carry5;
 	wire [19:0]carry6;
 	wire [18:0]carry7; // 8개의 partial product를 더하면서 생기는 CSA의 carry
-	wire cot; // 33bit over flow bit
+	wire realcout;
 	
 	// Booth Encoding을 위해 y를 1에서 16bit까지 3비트씩 참조하여 encoding 결과를 sel 변수에 담는다.
 	BoothEncoder booth1(sel1, {y[1:0], 1'b0});
@@ -135,12 +135,13 @@ module BoothMultiplier(cout, z16, x, y);
 	
 	// 위 모든 level의 CSA로 더해진 결과를 32bit Ripple Carry Adder를 사용하여 x*y의 결과를 얻는다. 
 	RCA32 cpa0(
-		cout,
+		realcout,
 		z,
 		{sum7[17:0], sum6[1:0], sum5[1:0], sum4[1:0], sum3[1:0], sum2[1:0], sum1[1:0], partial1[1:0]},
 		{carry7[16:0], carry6[1:0], carry5[1:0], carry4[1:0], carry3[1:0], carry2[1:0], carry1[1:0], sign2, 1'b0, sign1},
 		1'b0
 	);
 	
+	assign cout = z[16];
 	assign z16 = z[15:0];
 endmodule 
