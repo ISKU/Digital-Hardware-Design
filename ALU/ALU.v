@@ -70,12 +70,22 @@ module ALU (result, cc, valA, valB, aluop, sub);
 		(aluop == `OP_OR) ? or16b :
 		(aluop == `OP_XOR) ? xor16b :
 		(aluop == `OP_NOT) ? not16b :
-		(aluop == `OP_MUL) ? add_out : 16'bx;
+		(aluop == `OP_MUL) ? mul_out : 16'bx;
 	
-	assign N = result[15]; // 결과의 최상위 비트로 부호 판단
-	assign Z = ~|result; // Zero
-	assign C = (aluop==`OP_ADD/*ADD*/) & add_co;
-	assign V = 1'b0;
-
-	assign cc = {N,Z,C,V};
+	assign N = result[15]; // 최상위 비트로부터 부호 확인
+	assign Z = ~|result; // Zero 확인
+	assign C = 
+		(aluop == `OP_ADD) ? add_co : // Add
+		(aluop == `OP_MUL) ? mul_co : // Multiply
+		1'b0;
+	assign V = 
+		(aluop == `OP_SHL) ? 1'b1 : // shift left
+		(aluop == `OP_ADD) ? // Add
+			(~valA[15] & ~svalB[15] & add_out[15]) | /* (-) + (-) = (+) */ 
+			(valA[15] & svalB[15] & ~add_out[15]) : /* (+) + (+) = (-) */
+		(aluop == `OP_MUL) ? mul_co : // Multiply
+		1'b0;
+	
+	assign cc = {N, Z, C, V};
+	
 endmodule 
