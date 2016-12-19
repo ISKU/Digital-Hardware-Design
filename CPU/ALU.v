@@ -1,21 +1,21 @@
-`define OP_ADD 4'b0001 // Add
-`define OP_SUB 4'b0010 // Subtract
-`define OP_SHL 4'b0101 // Shift Left
-`define OP_SHAR 4'b0110 // Arithmetic Shift Right 
-`define OP_SHLR 4'b0111 // Logical Shift Right
-`define OP_RL 4'b1000 // Rotate Left
-`define OP_RR 4'b1001 // Rotate Right
-`define OP_AND 4'b1011 // AND
-`define OP_OR 4'b1100 // OR
-`define OP_XOR 4'b1101 // XOR
-`define OP_NOT 4'b1110 // NOT
-`define OP_MUL 4'b1111 // Multiply
+`define ALU_ADD 4'b0001 // Add
+`define ALU_SUB 4'b0010 // Subtract
+`define ALU_SHL 4'b0101 // Shift Left
+`define ALU_SHAR 4'b0110 // Arithmetic Shift Right 
+`define ALU_SHLR 4'b0111 // Logical Shift Right
+`define ALU_RL 4'b1000 // Rotate Left
+`define ALU_RR 4'b1001 // Rotate Right
+`define ALU_AND 4'b1011 // AND
+`define ALU_OR 4'b1100 // OR
+`define ALU_XOR 4'b1101 // XOR
+`define ALU_NOT 4'b1110 // NOT
+`define ALU_MULT 4'b1111 // Multiply
 
-module ALU (result, cc, valA, valB, aluop, sub);
+module ALU (result, cc, valA, valB, aluop);
 	input [15:0] valA; // input A
 	input [15:0] valB; // input B
 	input [3:0] aluop; // ALU Operation code (12개)
-	input sub; // 빼기 옵션
+	wire sub; // 빼기 옵션
 	
 	output [3:0] cc; // N, Z, C, V
 	output [15:0] result; // output
@@ -38,8 +38,8 @@ module ALU (result, cc, valA, valB, aluop, sub);
 	
 	// Left Shifter Or Logical Shift Right
 	assign shift_LR = 
-		(aluop == `OP_SHL) ? 1'b1 : // shift left
-		(aluop == `OP_SHLR) ? 1'b0 : 1'bx; // logical shift right
+		(aluop == `ALU_SHL) ? 1'b1 : // shift left
+		(aluop == `ALU_SHLR) ? 1'b0 : 1'bx; // logical shift right
 	Shifter16_LR myShifter(shift_out, valB, shift_LR, valA); // valA를 valB 만큼 Shift
 	
 	// Arithmetic Shift Right 
@@ -47,12 +47,13 @@ module ALU (result, cc, valA, valB, aluop, sub);
 	
 	// Rotator
 	assign rotate_LR = 
-		(aluop == `OP_RL) ? 1'b1 : // rotate left
-		(aluop == `OP_RR) ? 1'b0 : 1'bx; // rotate right
+		(aluop == `ALU_RL) ? 1'b1 : // rotate left
+		(aluop == `ALU_RR) ? 1'b0 : 1'bx; // rotate right
 	Rotator16_LR myRotator(rotate_out, valB, rotate_LR, valA); // valA를 valB만큼 Rotate
 	
 	// 덧셈 or 뺄셈
-	assign svalB = sub ? ~valB : valB; // 뺄셈일 경우 1의 보수를 취한다
+	assign sub = (aluop == `ALU_SUB) ? 1'b1 : 1'b0;
+	assign svalB = (aluop == `ALU_SUB) ? ~valB : valB; // 뺄셈일 경우 1의 보수를 취한다
 	KoggeStoneAdder myAdder(add_co, add_out, valA, svalB, sub); // KoggeStoneAdder를 통한 덧셈 또는 뺄셈(1(sub)의 더하여 2의보수)
 
 	// 곱셈
@@ -60,31 +61,31 @@ module ALU (result, cc, valA, valB, aluop, sub);
 	
 	// 각각의 OPCODE에 대한 결과값 
 	assign result =
-		(aluop == `OP_ADD) ? add_out :
-		(aluop == `OP_SUB) ? add_out :
-		(aluop == `OP_SHL) ? shift_out :
-		(aluop == `OP_SHAR) ? arithmetic_out :
-		(aluop == `OP_SHLR) ? shift_out :
-		(aluop == `OP_RL) ? rotate_out :
-		(aluop == `OP_RR) ? rotate_out :
-		(aluop == `OP_AND) ? and16b :
-		(aluop == `OP_OR) ? or16b :
-		(aluop == `OP_XOR) ? xor16b :
-		(aluop == `OP_NOT) ? not16b :
-		(aluop == `OP_MUL) ? mul_out : 16'bx;
+		(aluop == `ALU_ADD) ? add_out :
+		(aluop == `ALU_SUB) ? add_out :
+		(aluop == `ALU_SHL) ? shift_out :
+		(aluop == `ALU_SHAR) ? arithmetic_out :
+		(aluop == `ALU_SHLR) ? shift_out :
+		(aluop == `ALU_RL) ? rotate_out :
+		(aluop == `ALU_RR) ? rotate_out :
+		(aluop == `ALU_AND) ? and16b :
+		(aluop == `ALU_OR) ? or16b :
+		(aluop == `ALU_XOR) ? xor16b :
+		(aluop == `ALU_NOT) ? not16b :
+		(aluop == `ALU_MULT) ? mul_out : 16'bx;
 	
 	assign N = result[15]; // 최상위 비트로부터 Sign 확인
 	assign Z = ~|result; // Zero 확인
 	assign C = // Carry 확인
-		(aluop == `OP_ADD) ? add_co : // Add
-		(aluop == `OP_MUL) ? mul_co : // Multiply
+		(aluop == `ALU_ADD) ? add_co : // Add
+		(aluop == `ALU_MULT) ? mul_co : // Multiply
 		1'b0;
 	assign V = // Overflow 확인
-		(aluop == `OP_SHL) ? 1'b1 : // shift left
-		(aluop == `OP_ADD) ? // Add
+		(aluop == `ALU_SHL) ? valA[15] ^ shift_out[15] : // shift left
+		(aluop == `ALU_ADD) ? // Add
 			(~valA[15] & ~svalB[15] & add_out[15]) | /* (-) + (-) = (+) */ 
 			(valA[15] & svalB[15] & ~add_out[15]) : /* (+) + (+) = (-) */
-		(aluop == `OP_MUL) ? (valA[15] & valB[15]) : // Multiply
+		(aluop == `ALU_MULT) ? (valA[15] & valB[15]) : // Multiply
 		1'b0;
 	
 	assign cc = {N, Z, C, V};
