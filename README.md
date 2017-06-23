@@ -11,4 +11,4 @@
 8. Booth Multiplier
 9. Register File
 10. ALU
-11. CPU
+11. [CPU](https://github.com/ISKU/CPU)
